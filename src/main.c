@@ -398,28 +398,6 @@ scrot_sel_and_grab_image(void)
 
   XSetLineAttributes(disp, gc, opt.line_width, opt.line_style, CapRound, JoinRound);
 
-  if ((XGrabPointer
-       (disp, root, False,
-        ButtonMotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync,
-        GrabModeAsync, root, cur_cross, CurrentTime) != GrabSuccess)) {
-    fprintf(stderr, "couldn't grab pointer:");
-    XFreeCursor(disp, cur_cross);
-    XFreeCursor(disp, cur_angle);
-    XFreeGC(disp, gc);
-    exit(EXIT_FAILURE);
-  }
-
-
-  if ((XGrabKeyboard
-       (disp, root, False, GrabModeAsync, GrabModeAsync,
-        CurrentTime) != GrabSuccess)) {
-    fprintf(stderr, "couldn't grab keyboard:");
-    XFreeCursor(disp, cur_cross);
-    XFreeCursor(disp, cur_angle);
-    XFreeGC(disp, gc);
-    exit(EXIT_FAILURE);
-  }
-
   if (opt.freeze == 1)
       XGrabServer(disp);
 
