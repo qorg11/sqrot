@@ -398,8 +398,17 @@ scrot_sel_and_grab_image(void)
 
   XSetLineAttributes(disp, gc, opt.line_width, opt.line_style, CapRound, JoinRound);
 
-  if (opt.freeze == 1)
-      XGrabServer(disp);
+   if ((XGrabPointer
+       (disp, root, False,
+        ButtonMotionMask | ButtonPressMask | ButtonReleaseMask, GrabModeAsync,
+        GrabModeAsync, root, cur_cross, CurrentTime) != GrabSuccess)) {
+    fprintf(stderr, "couldn't grab pointer:");
+    XFreeCursor(disp, cur_cross);
+    XFreeCursor(disp, cur_angle);
+    XFreeGC(disp, gc);
+    exit(EXIT_FAILURE);
+  }
+  XGrabServer(disp);
 
   while (1) {
     /* handle events here */

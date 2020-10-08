@@ -175,7 +175,6 @@ scrot_parse_option_array(int argc, char **argv)
       {"multidisp", 0, 0, 'm'},
       {"silent", 0, 0, 'z'},
       {"pointer", 0, 0, 'p'},
-      {"freeze", 0, 0, 'f'},
       {"overwrite", 0, 0, 'o'},
       {"stack", 0, 0,'k'},
       /* toggles */
@@ -241,9 +240,6 @@ scrot_parse_option_array(int argc, char **argv)
            break;
         case 'p':
            opt.pointer = 1;
-           break;
-        case 'f':
-           opt.freeze = 1;
            break;
         case 'o':
            opt.overwrite = 1;
@@ -468,7 +464,6 @@ show_usage(void)
            "                            or the geometry in percent, e.g. 50x60 or 80x20.\n"
            "  -z, --silent              Prevent beeping\n"
            "  -p, --pointer             Capture the mouse pointer.\n"
-           "  -f, --freeze              Freeze the screen when the selection is used: --select\n"
            "  -o, --overwrite           By default " SCROT_PACKAGE " does not overwrite the files, use this option to allow it.\n"
            "  -l, --line                Indicates the style of the line when the selection is used: --select\n"
            "                            See SELECTION STYLE\n"
