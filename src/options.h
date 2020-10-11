@@ -40,14 +40,12 @@ struct __scrotoptions
    int delay;
    int countdown;
    int select;
+   int spurdo;
    int focused;
    int quality;
    int border;
    int silent;   
    int multidisp;
-   int thumb;
-   int thumb_width;
-   int thumb_height;
    int pointer;
    int freeze;
    int overwrite;
@@ -68,8 +66,6 @@ struct __scrotoptions
 };
 
 void init_parse_options(int argc, char **argv);
-char *name_thumbnail(char *name);
-void options_parse_thumbnail(char *optarg);
 void options_parse_autoselect(char *optarg);
 void options_parse_display(char *optarg);
 void options_parse_note(char *optarg);

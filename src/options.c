@@ -47,7 +47,7 @@ init_parse_options(int argc, char **argv)
    /* Set default options */
    memset(&opt, 0, sizeof(scrotoptions));
 
-   opt.quality = 75;
+   opt.quality = 100;
    opt.overwrite = 0;
    opt.line_style = LineSolid;
    opt.line_width = 1;
@@ -161,7 +161,7 @@ options_parse_line(char *optarg)
 static void
 scrot_parse_option_array(int argc, char **argv)
 {
-   static char stropts[] = "a:ofpbcd:e:hmq:st:uv+:zn:l:D:k";
+   static char stropts[] = "a:opbcd:e:hmq:st:uv+:zn:l:D:kS";
 
    static struct option lopts[] = {
       /* actions */
@@ -177,8 +177,8 @@ scrot_parse_option_array(int argc, char **argv)
       {"pointer", 0, 0, 'p'},
       {"overwrite", 0, 0, 'o'},
       {"stack", 0, 0,'k'},
+      {"spurdo", 0, 0,'S'},
       /* toggles */
-      {"thumb", 1, 0, 't'},
       {"delay", 1, 0, 'd'},
       {"quality", 1, 0, 'q'},
       {"exec", 1, 0, 'e'},
@@ -222,6 +222,9 @@ scrot_parse_option_array(int argc, char **argv)
            break;
         case 's':
            opt.select = 1;
+	   break;
+        case 'S':
+	   opt.spurdo = 1;
            break;
         case 'u':
            opt.focused = 1;
@@ -231,9 +234,6 @@ scrot_parse_option_array(int argc, char **argv)
            break;
         case 'c':
            opt.countdown = 1;
-           break;
-        case 't':
-           options_parse_thumbnail(optarg);
            break;
         case 'z':
            opt.silent = 1;
@@ -282,8 +282,6 @@ scrot_parse_option_array(int argc, char **argv)
                exit(EXIT_FAILURE);
             }
 
-            if (opt.thumb)
-               opt.thumb_file = name_thumbnail(opt.output_file);
          }
          else
             gib_weprintf("unrecognised option %s\n", argv[optind++]);
@@ -294,31 +292,6 @@ scrot_parse_option_array(int argc, char **argv)
    optind = 1;
 }
 
-char *
-name_thumbnail(char *name)
-{
-   size_t length = 0;
-   char *new_title;
-   char *dot_pos;
-   size_t diff = 0;
-
-   length = strlen(name) + 7;
-   new_title = gib_emalloc(length);
-
-   dot_pos = strrchr(name, '.');
-   if (dot_pos)
-   {
-      diff = (dot_pos - name) / sizeof(char);
-
-      strncpy(new_title, name, diff);
-      strcat(new_title, "-thumb");
-      strcat(new_title, dot_pos);
-   }
-   else
-      sprintf(new_title, "%s-thumb", name);
-
-   return new_title;
-}
 
 void
 options_parse_autoselect(char *optarg)
@@ -368,42 +341,6 @@ options_parse_display(char *optarg)
    opt.display=new_display;
 }
 
-void
-options_parse_thumbnail(char *optarg)
-{
-   char *tok;
-
-   if (strchr(optarg, 'x')) /* We want to specify the geometry */
-   {
-     tok = strtok(optarg, "x");
-     opt.thumb_width = options_parse_required_number(tok);
-     tok = strtok(NULL, "x");
-     if (tok)
-     {
-       opt.thumb_width = options_parse_required_number(optarg);
-       opt.thumb_height = options_parse_required_number(tok);
-
-       if (opt.thumb_width < 0)
-         opt.thumb_width = 1;
-       if (opt.thumb_height < 0)
-         opt.thumb_height = 1;
-
-       if (!opt.thumb_width && !opt.thumb_height)
-         opt.thumb = 0;
-       else
-         opt.thumb = 1;
-     }
-   }
-   else
-   {
-     opt.thumb = options_parse_required_number(optarg);
-     if (opt.thumb < 1)
-       opt.thumb = 1;
-     else if (opt.thumb > 100)
-       opt.thumb = 100;
-   }
-}
-
 void options_parse_note(char *optarg)
 {
    opt.note = gib_estrdup(optarg);
@@ -451,7 +388,7 @@ show_usage(void)
            "  -d, --delay NUM           wait NUM seconds before taking a shot\n"
            "  -e, --exec APP            run APP on the resulting screenshot\n"
            "  -q, --quality NUM         Image quality (1-100) high value means\n"
-           "                            high size, low compression. Default: 75.\n"
+           "                            high size, low compression. Default: 100.\n"
            "                            For lossless compression formats, like png,\n"
            "                            low quality means high compression.\n"
            "  -m, --multidisp           For multiple heads, grab shot from each\n"
@@ -459,7 +396,6 @@ show_usage(void)
            "  -s, --select              interactively choose a window or rectangle\n"
            "                            with the mouse\n"
            "  -u, --focused             use the currently focused window\n"
-           "  -t, --thumb NUM           generate thumbnail too. NUM is the percentage\n"
            "                            of the original size for the thumbnail to be,\n"
            "                            or the geometry in percent, e.g. 50x60 or 80x20.\n"
            "  -z, --silent              Prevent beeping\n"
@@ -482,7 +418,6 @@ show_usage(void)
            "  The following specifiers are recognised:\n"
            "                  $a hostname\n"
            "                  $f image path/filename (ignored when used in the filename)\n"
-           "                  $m thumbnail path/filename\n"
            "                  $n image name (ignored when used in the filename)\n"
            "                  $s image size (bytes) (ignored when used in the filename)\n"
            "                  $p image pixel size\n"

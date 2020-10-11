@@ -56,7 +56,10 @@ main(int argc,
   init_x_and_imlib(opt.display, 0);
 
   if (!opt.output_file) {
-    opt.output_file = gib_estrdup("%s.png");
+       if(opt.spurdo)
+	    opt.output_file = gib_estrdup("%s:D.png");
+       else
+	    opt.output_file = gib_estrdup("%s.png");
     opt.thumb_file = gib_estrdup("%s-thumb.png");
   } else {
     scrot_have_file_extension(opt.output_file, &have_extension);
@@ -103,55 +106,6 @@ main(int argc,
   gib_imlib_save_image_with_error_return(image, filename_im, &err);
   if (err)
     gib_eprintf("Saving to file %s failed\n", filename_im);
-  if (opt.thumb)
-  {
-    int cwidth, cheight;
-    int twidth, theight;
-
-    cwidth = gib_imlib_image_get_width(image);
-    cheight = gib_imlib_image_get_height(image);
-
-    /* Geometry based thumb size */
-    if (opt.thumb_width || opt.thumb_height)
-    {
-      if (!opt.thumb_width)
-      {
-        twidth = cwidth * opt.thumb_height / cheight;
-        theight = opt.thumb_height;
-      }
-      else if (!opt.thumb_height)
-      {
-        twidth = opt.thumb_width;
-        theight = cheight * opt.thumb_width / cwidth;
-      }
-      else
-      {
-        twidth = opt.thumb_width;
-        theight = opt.thumb_height;
-      }
-    }
-    else
-    {
-      twidth = cwidth * opt.thumb / 100;
-      theight = cheight * opt.thumb / 100;
-    }
-
-    thumbnail =
-      gib_imlib_create_cropped_scaled_image(image, 0, 0, cwidth, cheight,
-                                            twidth, theight, 1);
-    if (thumbnail == NULL)
-      gib_eprintf("Unable to create scaled Image\n");
-    else
-    {
-      if (opt.note != NULL)
-        scrot_note_draw(image);
-      filename_thumb = im_printf(opt.thumb_file, tm, NULL, NULL, thumbnail);
-      scrot_check_if_overwrite_file(&filename_thumb);
-      gib_imlib_save_image_with_error_return(thumbnail, filename_thumb, &err);
-      if (err)
-        gib_eprintf("Saving thumbnail %s failed\n", filename_thumb);
-    }
-  }
   if (opt.exec)
     scrot_exec_app(image, tm, filename_im, filename_thumb);
   gib_imlib_free_image_and_decache(image);
@@ -714,12 +668,6 @@ im_printf(char *str, struct tm *tm,
                    gib_imlib_image_get_width(im) *
                    gib_imlib_image_get_height(im));
           strcat(ret, buf);
-          break;
-        case 't':
-          tmp = gib_imlib_image_format(im);
-          if (tmp) {
-            strcat(ret, gib_imlib_image_format(im));
-          }
           break;
         case '$':
           strcat(ret, "$");
